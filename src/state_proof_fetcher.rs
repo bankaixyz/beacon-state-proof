@@ -2,6 +2,8 @@ use crate::error::Error;
 use crate::rpc::fetch_beacon_state;
 use types::{Hash256, MainnetEthSpec, SyncCommittee};
 pub use types::beacon_state::TreeHash;
+use serde::{Serialize, Deserialize};
+
 /// A fetcher for obtaining state proofs from a beacon node.
 pub struct StateProofFetcher {
     rpc_endpoint: String,
@@ -64,7 +66,9 @@ impl StateProofFetcher {
         let next_sync_committee = state.next_sync_committee()
             .map_err(Error::BeaconStateError)?.as_ref().clone();
 
-        Ok(SyncCommitteeProof { proof, next_sync_committee, index: 55 })
+        let leaf = next_sync_committee.tree_hash_root();
+
+        Ok(SyncCommitteeProof { proof, next_sync_committee, index: 55, leaf })
     }
 }
 
@@ -78,4 +82,6 @@ pub struct SyncCommitteeProof {
     pub next_sync_committee: SyncCommittee<MainnetEthSpec>,
     /// The index of the sync committee in the state.
     pub index: usize,
+    /// The leaf of the sync committee. This is the ssz root of the sync committee container.
+    pub leaf: Hash256,
 }
