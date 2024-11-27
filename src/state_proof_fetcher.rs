@@ -68,7 +68,7 @@ impl StateProofFetcher {
 
         let leaf = next_sync_committee.tree_hash_root();
 
-        Ok(SyncCommitteeProof { proof, next_sync_committee, index: 55, leaf })
+        Ok(SyncCommitteeProof { proof, next_sync_committee, index: 55, leaf, slot })
     }
 }
 
@@ -84,4 +84,6 @@ pub struct SyncCommitteeProof {
     pub index: usize,
     /// The leaf of the sync committee. This is the ssz root of the sync committee container.
     pub leaf: Hash256,
+    /// The slot of the beacon state.
+    pub slot: u64,
 }
