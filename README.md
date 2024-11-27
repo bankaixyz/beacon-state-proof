@@ -16,7 +16,7 @@ Add this to your `Cargo.toml`:
 ```toml
 [dependencies]
 
-beacon_state_proof = { git = "https://github.com/petscheit/beacon-state-proof", tag = "v0.1.0" }
+beacon-state-proof = { git = "https://github.com/petscheit/beacon-state-proof" }
 ```
 
 
