@@ -1,6 +1,6 @@
 use crate::error::Error;
 use crate::rpc::fetch_beacon_state;
-use types::{Hash256, MainnetEthSpec, SyncCommittee};
+use types::{ExecutionPayloadHeader, ExecutionPayloadHeaderRef, Hash256, MainnetEthSpec, SyncCommittee};
 pub use types::beacon_state::TreeHash;
 use serde::{Serialize, Deserialize};
 
@@ -70,6 +70,29 @@ impl StateProofFetcher {
 
         Ok(SyncCommitteeProof { proof, next_sync_committee, index: 55, leaf, slot })
     }
+
+    pub async fn fetch_execution_payload_proof(&self, slot: u64) -> Result<BeaconBlockProof, Error> {
+        let state = fetch_beacon_state(&self.rpc_endpoint, slot).await?;
+        let proof = state.compute_merkle_proof(24)
+            .map_err(Error::BeaconStateError)?;
+        
+        // Investigate how to use the macro here
+        // let execution_ref = state.latest_execution_payload_header().map_err(Error::BeaconStateError)?;
+        // let execution_header = map_execution_payload_header_ref_into_execution_payload_header!(execution_ref, |inner, cons| {
+        //     cons(inner.clone())
+        // });
+
+        // ToDo: Annoying because the hardforks need to be handled manually.
+        let execution_header = match state.latest_execution_payload_header().map_err(Error::BeaconStateError)? {
+            ExecutionPayloadHeaderRef::Bellatrix(inner) => ExecutionPayloadHeader::Bellatrix(inner.clone()),
+            ExecutionPayloadHeaderRef::Capella(inner) => ExecutionPayloadHeader::Capella(inner.clone()),
+            ExecutionPayloadHeaderRef::Deneb(inner) => ExecutionPayloadHeader::Deneb(inner.clone()),
+            ExecutionPayloadHeaderRef::Electra(inner) => ExecutionPayloadHeader::Electra(inner.clone()),
+        };
+        let leaf = execution_header.tree_hash_root();
+
+        Ok(BeaconBlockProof { proof, leaf, index: 24, slot, execution_header })
+    }
 }
 
 
@@ -85,5 +108,19 @@ pub struct SyncCommitteeProof {
     /// The leaf of the sync committee. This is the ssz root of the sync committee container.
     pub leaf: Hash256,
     /// The slot of the beacon state.
+    pub slot: u64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct BeaconBlockProof {
+    /// The Merkle proof for the beacon block body.
+    pub proof: Vec<Hash256>,
+    /// The execution header of the beacon block.
+    pub execution_header: ExecutionPayloadHeader<MainnetEthSpec>,
+    /// The leaf of the execution header. This is the ssz root of the execution header.
+    pub leaf: Hash256,
+    /// The index of the execution header in the state.
+    pub index: usize,
+    /// The slot of the beacon block.
     pub slot: u64,
 }
