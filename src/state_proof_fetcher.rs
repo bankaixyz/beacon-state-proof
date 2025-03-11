@@ -27,9 +27,10 @@ impl StateProofFetcher {
     /// A vector of `Hash256` representing the Merkle proof.
     pub async fn fetch_state_proof(&self, slot: u64, index: usize) -> Result<Vec<Hash256>, Error> {
         let state = fetch_beacon_state(&self.rpc_endpoint, slot).await?;
+        let leafs = state.get_beacon_state_leaves();
 
         state
-            .compute_merkle_proof(index)
+            .generate_proof(index, &leafs)
             .map_err(Error::BeaconStateError)
     }
 
@@ -60,7 +61,7 @@ impl StateProofFetcher {
     /// * The next sync committee cannot be retrieved from the state
     pub async fn fetch_next_sync_committee_proof(&self, slot: u64) -> Result<SyncCommitteeProof, Error> {
         let state = fetch_beacon_state(&self.rpc_endpoint, slot).await?;
-        let proof = state.compute_merkle_proof(55)
+        let proof = state.compute_next_sync_committee_proof()
             .map_err(Error::BeaconStateError)?;
 
         let next_sync_committee = state.next_sync_committee()
