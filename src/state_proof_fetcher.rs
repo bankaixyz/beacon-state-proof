@@ -3,6 +3,7 @@ use crate::rpc::fetch_beacon_state;
 use types::{Hash256, MainnetEthSpec, SyncCommittee};
 pub use types::beacon_state::TreeHash;
 use serde::{Serialize, Deserialize};
+use types::light_client_update;
 
 /// A fetcher for obtaining state proofs from a beacon node.
 pub struct StateProofFetcher {
@@ -61,6 +62,14 @@ impl StateProofFetcher {
     /// * The next sync committee cannot be retrieved from the state
     pub async fn fetch_next_sync_committee_proof(&self, slot: u64) -> Result<SyncCommitteeProof, Error> {
         let state = fetch_beacon_state(&self.rpc_endpoint, slot).await?;
+        
+        // Electra: indexed of beacon state have changed
+        let index = if state.fork_name_unchecked().electra_enabled() {
+            light_client_update::NEXT_SYNC_COMMITTEE_INDEX_ELECTRA
+        } else {
+            light_client_update::NEXT_SYNC_COMMITTEE_INDEX
+        };
+
         let proof = state.compute_next_sync_committee_proof()
             .map_err(Error::BeaconStateError)?;
 
@@ -69,7 +78,7 @@ impl StateProofFetcher {
 
         let leaf = next_sync_committee.tree_hash_root();
 
-        Ok(SyncCommitteeProof { proof, next_sync_committee, index: 55, leaf, slot })
+        Ok(SyncCommitteeProof { proof, next_sync_committee, index, leaf, slot })
     }
 }
 
