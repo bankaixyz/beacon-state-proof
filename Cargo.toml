@@ -10,12 +10,5 @@ repository = "https://github.com/petscheit/beacon-state-proof"
 reqwest = { version = "0.11", features = ["json"] }
 serde = "1.0.215"
 tokio = { version = "1", features = ["full"] }
-types = { git = "https://github.com/petscheit/lighthouse", package = "types", rev = "577954111ac8526859534977960addeb5827e30b" }
+types = { git = "https://github.com/petscheit/lighthouse", package = "types", rev = "2ef065a16" }
 
-# These need to be pinned to make the lighthouse fork work
-rust_eth_kzg = "=0.5.1"
-crate_crypto_internal_eth_kzg_bls12_381 = "=0.5.1"
-crate_crypto_internal_eth_kzg_erasure_codes = "=0.5.1"
-crate_crypto_internal_eth_kzg_maybe_rayon = "=0.5.1"
-crate_crypto_internal_eth_kzg_polynomial = "=0.5.1"
-crate_crypto_kzg_multi_open_fk20 = "=0.5.1"
