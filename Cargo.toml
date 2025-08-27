@@ -6,9 +6,14 @@ description = "A Rust library for fetching state proofs from an Ethereum beacon 
 license = "MIT"
 repository = "https://github.com/petscheit/beacon-state-proof"
 
+[[bin]]
+name = "usage"
+path = "examples/usage.rs"
+
 [dependencies]
 reqwest = { version = "0.11", features = ["json"] }
 serde = "1.0.215"
 tokio = { version = "1", features = ["full"] }
-types = { git = "https://github.com/petscheit/lighthouse", package = "types", rev = "2ef065a16" }
-
+types = { git = "https://github.com/bankaixyz/lighthouse", package = "types", rev = "9759655" }
+tree_hash = "0.9"
+tree_hash_derive = "0.9"

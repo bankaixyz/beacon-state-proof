@@ -3,6 +3,7 @@ use reqwest::header::ACCEPT;
 use types::beacon_state::BeaconState;
 use types::eth_spec::MainnetEthSpec;
 use types::fork_name::ForkName;
+use types::ForkVersionDecode;
 
 /// Fetches the beacon state from the given RPC endpoint and slot.
 ///
@@ -37,7 +38,7 @@ pub async fn fetch_beacon_state(
 
     let bytes = response.bytes().await?;
 
-    let state = BeaconState::from_fork_ssz_bytes(bytes.as_ref(), fork_name)
+    let state = BeaconState::from_ssz_bytes_by_fork(bytes.as_ref(), fork_name)
         .map_err(|_| Error::SszError)?;
 
     Ok(state)

@@ -1,7 +1,7 @@
 use crate::error::Error;
 use crate::rpc::fetch_beacon_state;
 use types::{Hash256, MainnetEthSpec, SyncCommittee};
-pub use types::beacon_state::TreeHash;
+use tree_hash::TreeHash;
 use serde::{Serialize, Deserialize};
 use types::light_client_update;
 
