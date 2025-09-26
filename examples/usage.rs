@@ -12,4 +12,4 @@ async fn main() {
     };
 
     println!("{:?}", proof.leaf);
-} 
+}

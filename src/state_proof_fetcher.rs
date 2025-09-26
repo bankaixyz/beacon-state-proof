@@ -1,9 +1,9 @@
 use crate::error::Error;
 use crate::rpc::fetch_beacon_state;
-use types::{Hash256, MainnetEthSpec, SyncCommittee};
+use serde::{Deserialize, Serialize};
 use tree_hash::TreeHash;
-use serde::{Serialize, Deserialize};
 use types::light_client_update;
+use types::{Hash256, MainnetEthSpec, SyncCommittee};
 
 /// A fetcher for obtaining state proofs from a beacon node.
 pub struct StateProofFetcher {
@@ -60,9 +60,12 @@ impl StateProofFetcher {
     /// * The beacon state cannot be fetched from the RPC endpoint
     /// * The Merkle proof computation fails
     /// * The next sync committee cannot be retrieved from the state
-    pub async fn fetch_next_sync_committee_proof(&self, slot: u64) -> Result<SyncCommitteeProof, Error> {
+    pub async fn fetch_next_sync_committee_proof(
+        &self,
+        slot: u64,
+    ) -> Result<SyncCommitteeProof, Error> {
         let state = fetch_beacon_state(&self.rpc_endpoint, slot).await?;
-        
+
         // Electra: indexed of beacon state have changed
         let index = if state.fork_name_unchecked().electra_enabled() {
             light_client_update::NEXT_SYNC_COMMITTEE_INDEX_ELECTRA
@@ -70,18 +73,27 @@ impl StateProofFetcher {
             light_client_update::NEXT_SYNC_COMMITTEE_INDEX
         };
 
-        let proof = state.compute_next_sync_committee_proof()
+        let proof = state
+            .compute_next_sync_committee_proof()
             .map_err(Error::BeaconStateError)?;
 
-        let next_sync_committee = state.next_sync_committee()
-            .map_err(Error::BeaconStateError)?.as_ref().clone();
+        let next_sync_committee = state
+            .next_sync_committee()
+            .map_err(Error::BeaconStateError)?
+            .as_ref()
+            .clone();
 
         let leaf = next_sync_committee.tree_hash_root();
 
-        Ok(SyncCommitteeProof { proof, next_sync_committee, index, leaf, slot })
+        Ok(SyncCommitteeProof {
+            proof,
+            next_sync_committee,
+            index,
+            leaf,
+            slot,
+        })
     }
 }
-
 
 /// A struct representing a sync committee proof.
 #[derive(Debug, Serialize, Deserialize)]

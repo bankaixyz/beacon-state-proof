@@ -42,4 +42,4 @@ pub async fn fetch_beacon_state(
         .map_err(|_| Error::SszError)?;
 
     Ok(state)
-} 
+}

@@ -19,4 +19,4 @@ impl From<reqwest::Error> for Error {
     fn from(error: reqwest::Error) -> Self {
         Error::ReqwestError(error)
     }
-} 
+}
