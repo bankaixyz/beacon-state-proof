@@ -19,7 +19,7 @@ pub async fn fetch_beacon_state(
     url: &str,
     slot: u64,
 ) -> Result<BeaconState<MainnetEthSpec>, Error> {
-    let url = format!("{}/eth/v2/debug/beacon/states/{}", url, slot);
+    let url = format!("{url}/eth/v2/debug/beacon/states/{slot}");
     let client = reqwest::Client::new();
     let response = client
         .get(&url)

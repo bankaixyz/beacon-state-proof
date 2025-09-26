@@ -6,7 +6,7 @@ async fn main() {
     let proof: SyncCommitteeProof = match fetcher.fetch_next_sync_committee_proof(6408035).await {
         Ok(proof) => proof,
         Err(e) => {
-            println!("Error fetching state proof: {:?}", e);
+            println!("Error fetching state proof: {e:?}");
             return;
         }
     };
