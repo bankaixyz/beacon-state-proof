@@ -1,3 +1,3 @@
-pub mod state_proof_fetcher;
+pub mod error;
 pub mod rpc;
-pub mod error; 
+pub mod state_proof_fetcher;
